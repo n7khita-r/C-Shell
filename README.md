@@ -1,130 +1,198 @@
-C Shell
+# 🐚 C Shell
 
-A POSIX-compliant custom shell implemented in C.
-Supports interactive prompt, input parsing, built-in commands (hop, reveal, log, etc.), pipes, I/O redirection, sequential and background execution, and process control.
+> A **POSIX-compliant** custom shell implementation crafted in C, featuring interactive prompts, sophisticated command parsing, built-in utilities, pipes, I/O redirection, and comprehensive process control.
 
-COMPILATION
+---
 
-Make sure you are in the correct directory, compile using 
-#make clean
+## ⚡ Quick Start
 
-followed by
- 
-#make all
+### Compilation
 
-Implementation Overview
+Navigate to the project directory and execute:
 
-SHELL INPUT
+```bash
+make clean
+make all
+```
 
-Prompt: <Username@SystemName:current_path>
+---
 
-Displays ~ for home-relative paths.
+## 🎯 Features at a Glance
 
-Reads user input line-by-line.
+### **Interactive Shell Prompt**
+```
+<Username@SystemName:current_path>
+```
+- Displays `~` for home-relative paths
+- Line-by-line command input
+- Grammar-aware parsing with syntax validation
+- Invalid syntax detection → `Invalid Syntax!`
 
-Parses commands according to given grammar.
+---
 
-Detects invalid syntax → prints Invalid Syntax!.
+## 🛠️ Built-in Commands
 
-SHELL INTRINSICS
+### `hop` — Smart Directory Navigation
+Change directories with intelligent path handling:
 
-hop — Change directory
-Supports ~, ., .., -, and named directories.
-Handles invalid paths with No such directory!.
+- `hop ~` — Jump to home directory
+- `hop .` — Current directory
+- `hop ..` — Parent directory
+- `hop -` — Previous directory
+- `hop <path>` — Named directory
 
-reveal — List directory contents
-Supports flags -a, -l (combined forms accepted).
-Lists files lexicographically, hidden files shown with -a.
-Errors:
+**Error Handling:**
+- Invalid paths → `No such directory!`
 
-Too many arguments → reveal: Invalid Syntax!
+---
 
-No previous directory → No such directory!
+### `reveal` — Enhanced Directory Listing
+List directory contents with powerful flags:
 
-log — Persistent command history (max 15)
+**Syntax:**
+```bash
+reveal [flags] [path]
+```
 
-Persists across sessions.
+**Flags:**
+- `-a` — Show hidden files
+- `-l` — Long format with details
+- Combined: `-la`, `-al`
 
-Ignores consecutive duplicates and log commands.
+**Features:**
+- Lexicographic sorting
+- Hidden files (starting with `.`) shown with `-a` flag
 
-log — Show history
+**Error Handling:**
+- Too many arguments → `reveal: Invalid Syntax!`
+- Missing previous directory → `No such directory!`
 
-log purge — Clear history
+---
 
-log execute <index> — Execute command by index
+### `log` — Persistent Command History
+Maintains a rolling history of the last **15 commands** across sessions.
 
-REDIRECTION AND PIPES
+**Features:**
+- Persists between shell sessions
+- Ignores consecutive duplicates
+- Excludes `log` commands from history
 
-Input Redirection:
+**Subcommands:**
 
-< file — Reads STDIN from file.
+| Command | Description |
+|---------|-------------|
+| `log` | Display command history |
+| `log purge` | Clear all history |
+| `log execute <index>` | Re-run command by index |
 
-Missing file → No such file or directory.
+---
 
-Output Redirection:
+## 🔀 Advanced I/O Operations
 
-> file — Truncate and write.
+### **Input Redirection**
+```bash
+command < input_file
+```
+- Reads STDIN from specified file
+- Error: Missing file → `No such file or directory`
 
->> file — Append mode.
+### **Output Redirection**
+```bash
+command > output_file   # Truncate and write
+command >> output_file  # Append mode
+```
+- Error: Creation failure → `Unable to create file for writing`
 
-File creation failure → Unable to create file for writing.
+### **Pipes**
+Chain commands seamlessly:
+```bash
+command1 | command2 | command3
+```
+- Supports mixing with redirections
+- Multi-stage data processing
 
-Piping:
+---
 
-Connects multiple commands via |.
+## ⚙️ Process Control
 
-Supports mixed use with redirections.
+### **Execution Modes**
 
-Sequential (;) — Executes commands in order, waits for each.
+#### Sequential Execution (`;`)
+```bash
+cmd1 ; cmd2 ; cmd3
+```
+Executes commands in order, waiting for each to complete.
 
-Background (&) — Runs commands asynchronously.
+#### Background Execution (`&`)
+```bash
+long_running_task &
+```
+- Runs command asynchronously
+- Prints: `[job_number] pid`
 
-Prints [job_number] pid.
+**Completion Notifications:**
+- Normal exit: `command_name with pid <pid> exited normally`
+- Abnormal exit: `command_name with pid <pid> exited abnormally`
 
-Reports completion status:
+---
 
-Normal: command_name with pid <pid> exited normally
+### `activities` — Process Monitor
+Lists all active and stopped background processes:
+```bash
+activities
+```
+**Output Format:**
+```
+[pid] : command_name - State
+```
+- Sorted lexicographically by command name
 
-Abnormal: command_name with pid <pid> exited abnormally
+---
 
-MORE FEATURES
+### `ping` — Signal Dispatcher
+Send signals to processes:
+```bash
+ping <pid> <signal_number>
+```
 
-NOTE: regular shell commands like sleep, echo, grep, and anything else will run normally.
+**Responses:**
+- Invalid syntax → `Invalid syntax!`
+- Process not found → `No such process found`
+- Success → `Sent signal <num> to process with pid <pid>`
 
-activities — Lists active/stopped background processes.
-Displays: [pid] : command_name - State
-Sorted lexicographically by command name.
+---
 
-ping — Sends signals to processes.
-Syntax: ping <pid> <signal_number>
+### `fg` / `bg` — Job Control
+Manage background and foreground processes:
 
-If invalid → Invalid syntax!
+```bash
+fg [job_number]  # Bring job to foreground
+bg [job_number]  # Resume stopped job in background
+```
 
-If process missing → No such process found
+**Error Handling:**
+- Handles missing job numbers
+- Validates job existence
 
-Success → Sent signal <num> to process with pid <pid>
+---
 
-Keyboard Shortcuts:
+## ⌨️ Keyboard Shortcuts
 
-Ctrl-C (SIGINT): Sends interrupt to foreground process.
+| Shortcut | Signal | Action |
+|----------|--------|--------|
+| `Ctrl-C` | `SIGINT` | Interrupt foreground process |
+| `Ctrl-D` | `EOF` | Kill all children, print `logout`, exit shell |
+| `Ctrl-Z` | `SIGTSTP` | Stop current process → `[job_number] Stopped command_name` |
 
-Ctrl-D (EOF): Kills all child processes → prints logout and exits.
+---
 
-Ctrl-Z (SIGTSTP): Stops current process → [job_number] Stopped command_name.
+## 💻 Example Session
 
-fg / bg:
-
-fg [job] — Bring job to foreground.
-
-bg [job] — Resume stopped job in background.
-
-Handles missing job number and invalid job cases gracefully.
-
-EXAMPLE SESSION
-
+```bash
 <user@system:~> hop ..
 <user@system:/home> reveal
 projects
+
 <user@system:/home> hop projects/myshell
 <user@system:~/projects/myshell> reveal -la
 .git
@@ -134,8 +202,65 @@ README.md
 include
 src
 shell.out
-<user@system:~/projects/myshell> sleep 10 &
-[1] 4521
-<user@system:~/projects/myshell> activities
-[4521] : sleep - Running
 
+<user@system:~/projects/myshell> sleep 10 &
+[1] 12345
+
+<user@system:~/projects/myshell> echo "Building..." > build.log
+<user@system:~/projects/myshell> cat build.log
+Building...
+
+<user@system:~/projects/myshell> ls | grep ".c" | wc -l
+5
+
+[1] sleep with pid 12345 exited normally
+
+<user@system:~/projects/myshell> activities
+[12346] : gcc - Running
+[12347] : vim - Stopped
+
+<user@system:~/projects/myshell> log
+1. hop ..
+2. reveal
+3. hop projects/myshell
+4. reveal -la
+5. sleep 10 &
+
+<user@system:~/projects/myshell> log execute 2
+projects
+
+<user@system:~/projects/myshell> ^D
+logout
+```
+
+---
+
+## 🚀 Additional Features
+
+### **Standard Command Support**
+All regular shell commands work seamlessly:
+- `sleep`, `echo`, `grep`, `cat`, `ls`, `wc`, `find`, etc.
+- Full integration with system binaries
+
+### **Robust Error Handling**
+- Graceful handling of edge cases
+- Informative error messages
+- Syntax validation at parse time
+
+### **Session Persistence**
+- Command history survives shell restarts
+- Maintains context across sessions
+
+---
+
+## 📋 Technical Specifications
+
+- **Language:** C
+- **Standards:** POSIX-compliant
+- **Architecture:** Modular design with separate parsing, execution, and I/O handling
+- **History Size:** 15 commands (rolling window)
+- **Process Management:** Full job control with signal handling
+
+---
+
+**Built with ❤️ using C and a deep appreciation for Unix philosophy**
