@@ -1,6 +1,6 @@
-# 🐚 C Shell
+# C Shell
 
-> A **POSIX-compliant** custom shell implementation crafted in C, featuring interactive prompts, sophisticated command parsing, built-in utilities, pipes, I/O redirection, and comprehensive process control.
+> A **POSIX-compliant** custom shell implementation in C for a course project, featuring interactive prompts, sophisticated command parsing, built-in utilities, pipes, I/O redirection, and comprehensive process control.
 
 ---
 
